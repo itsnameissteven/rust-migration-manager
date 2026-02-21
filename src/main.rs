@@ -1,9 +1,10 @@
+use cli_tooling::file_manager::write_migration;
 use cli_tooling::tables::user;
 use dialoguer::{Confirm, theme::ColorfulTheme};
 use std::error::Error;
 fn main() {
-    let p = user::create_user_table().create_table();
-    println!("{}", p);
+    let migration = user::create_user_table().create_table();
+    write_migration(&migration, " file_name ").unwrap();
     // let _ = init();
 }
 
