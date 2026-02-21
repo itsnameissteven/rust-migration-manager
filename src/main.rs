@@ -5,7 +5,6 @@ use std::error::Error;
 fn main() {
     let migration = user::create_user_table().create_table();
     write_migration(&migration, " file_name ").unwrap();
-    // let _ = init();
 }
 
 // fn init() -> Result<Option<bool>, Box<dyn Error>> {

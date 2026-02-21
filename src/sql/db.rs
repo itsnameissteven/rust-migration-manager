@@ -5,8 +5,33 @@ pub trait Format {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Config {
+    migration_path: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Schema {
     pub tables: Vec<Table>,
+    pub config: Config,
+}
+
+impl Schema {
+    pub fn new() -> Self {
+        Self {
+            tables: Vec::new(),
+            config: Config {
+                migration_path: String::from("migrations"),
+            },
+        }
+    }
+    pub fn tables(mut self, tables: Vec<Table>) -> Self {
+        self.tables = tables;
+        self
+    }
+    pub fn config(mut self, config: Config) -> Self {
+        self.config = config;
+        self
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

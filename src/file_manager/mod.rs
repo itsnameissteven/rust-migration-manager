@@ -2,9 +2,6 @@ use chrono::Utc;
 use std::fs;
 use std::io::ErrorKind;
 
-struct Config {
-    migration_dir: String,
-}
 pub fn write_migration(migration: &str, file_name: &str) -> Result<(), std::io::Error> {
     let dir = "migrations";
     let time_stamp = Utc::now().timestamp().to_string();
