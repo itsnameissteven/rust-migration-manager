@@ -15,3 +15,16 @@ pub fn create_user_table() -> Table {
         ],
     }
 }
+
+pub fn create_phrase_table() -> Table {
+    Table {
+        name: String::from("phrase"),
+        columns: vec![
+            Column::new("phrase_id", DataType::Uuid)
+                .unique()
+                .primary()
+                .default("uuid"),
+            Column::new("desc", DataType::Text),
+        ],
+    }
+}

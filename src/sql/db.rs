@@ -1,4 +1,7 @@
+use chrono::Utc;
 use std::fmt::Write;
+use std::fs;
+use std::io::ErrorKind;
 
 pub trait Format {
     fn as_str(&self) -> String;
@@ -32,6 +35,35 @@ impl Schema {
         self.config = config;
         self
     }
+    pub fn migrate(&self, file_name: &str) -> Result<(), std::io::Error> {
+        let time_stamp = Utc::now().timestamp().to_string();
+        let file_path = format!(
+            "{}/{}_{}.sql",
+            self.config.migration_path,
+            time_stamp,
+            file_name.trim()
+        );
+
+        let path = match fs::create_dir(&self.config.migration_path) {
+            Ok(_) => {
+                println!("Migration directory created");
+                Ok(())
+            }
+            Err(e) if e.kind() == ErrorKind::AlreadyExists => Ok(()),
+            Err(e) => Err(e),
+        };
+        if let Err(e) = path {
+            return Err(e);
+        }
+
+        match fs::write(file_path, self.as_str()) {
+            Ok(_) => {
+                println!("Migration created");
+                Ok(())
+            }
+            Err(e) => Err(e),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -58,6 +90,16 @@ impl Table {
         }
 
         write!(output, "\n);").unwrap();
+        output
+    }
+}
+
+impl Format for Schema {
+    fn as_str(&self) -> String {
+        let mut output = String::from("-- Migration --");
+        for table in &self.tables {
+            write!(output, "\n\n{}", table.create_table()).unwrap()
+        }
         output
     }
 }
