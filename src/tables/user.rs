@@ -1,4 +1,4 @@
-use crate::sql::db::{Column, DataType, Table};
+use crate::sql::{column::Column, table::Table, utils::DataType};
 
 pub fn create_user_table() -> Table {
     Table {
@@ -10,6 +10,7 @@ pub fn create_user_table() -> Table {
                 .default("uuid"),
             Column::new("first_name", DataType::Text),
             Column::new("last_name", DataType::Text),
+            // Column::new("first_name", DataType::Text),
             Column::new("created_at", DataType::Timestamp).default("now()"),
             Column::new("updated_at", DataType::Timestamp).default("now()"),
         ],
