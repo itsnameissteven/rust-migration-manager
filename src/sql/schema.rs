@@ -1,5 +1,5 @@
 use crate::error::SchemaError;
-use crate::sql::table::Table;
+use crate::sql::Table;
 use chrono::Utc;
 use std::fmt::Write;
 use std::fs;

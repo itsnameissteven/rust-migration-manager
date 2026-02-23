@@ -9,7 +9,6 @@ pub enum SchemaError {
     Io(std::io::Error),
 }
 
-// Implement the Display trait for user-facing messages
 impl fmt::Display for SchemaError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -20,7 +19,6 @@ impl fmt::Display for SchemaError {
     }
 }
 
-// Implement the Error trait
 impl Error for SchemaError {}
 
 impl From<SchemaError> for io::Error {

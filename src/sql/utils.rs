@@ -1,3 +1,5 @@
+use crate::sql::Table;
+
 pub trait Format {
     fn as_str(&self) -> String;
 }
@@ -22,6 +24,10 @@ impl Format for DataType {
     fn as_str(&self) -> String {
         format!("{:?}", self).to_lowercase()
     }
+}
+
+pub trait BuildTable {
+    fn table() -> Table;
 }
 
 #[test]

@@ -1,6 +1,5 @@
 use crate::error::SchemaError;
-use crate::sql::column::Column;
-use crate::sql::utils::Format;
+use crate::sql::{Column, Format};
 use std::collections::HashSet;
 use std::fmt::Write;
 
@@ -11,6 +10,20 @@ pub struct Table {
 }
 
 impl Table {
+    pub fn new(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            columns: Vec::new(),
+        }
+    }
+    pub fn column(mut self, column: Column) -> Self {
+        self.columns.push(column);
+        self
+    }
+    pub fn with_time_stamps(self) -> Self {
+        self.column(Column::time_stamp("created_at"))
+            .column(Column::time_stamp("updated_at"))
+    }
     pub fn parse(&self) -> Result<String, SchemaError> {
         if let Err(e) = self.validate_col_names() {
             return Err(e);

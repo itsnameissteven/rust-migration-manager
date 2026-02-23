@@ -1,4 +1,4 @@
-use crate::sql::utils::{DataType, Format};
+use crate::sql::{DataType, Format};
 use std::fmt::Write;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -41,6 +41,18 @@ impl Column {
     pub fn default(mut self, value: impl Into<String>) -> Self {
         self.default = Some(value.into());
         self
+    }
+}
+
+impl Column {
+    pub fn id(name: &str) -> Self {
+        Self::new(name, DataType::Uuid).unique().primary()
+    }
+    pub fn text(name: &str) -> Self {
+        Self::new(name, DataType::Text)
+    }
+    pub fn time_stamp(name: &str) -> Self {
+        Self::new(name, DataType::Timestamp).default("now()")
     }
 }
 
