@@ -1,8 +1,7 @@
-use crate::sql::db::Schema;
-use crate::tables::user::create_user_table;
+use crate::sql::{BuildTable, Schema};
+use crate::tables::User;
 
-fn build_schema() -> Schema {
-    Schema {
-        tables: vec![create_user_table()],
-    }
+pub fn build() -> Schema {
+    let tables = vec![User::table()];
+    Schema::new().tables(tables)
 }

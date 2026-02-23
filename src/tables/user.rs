@@ -1,15 +1,13 @@
-use crate::sql::db::{Column, DataType, Table};
+use crate::sql::{BuildTable, Column, Table};
 
-pub fn create_user_table() -> Table {
-    Table {
-        name: String::from("user"),
-        columns: vec![
-            Column::new("user_id", DataType::Uuid)
-                .unique()
-                .primary()
-                .default("uuid"),
-            Column::new("first_name", DataType::Text),
-            Column::new("last_name", DataType::Text),
-        ],
+pub struct User;
+
+impl BuildTable for User {
+    fn table() -> Table {
+        Table::new("user")
+            .column(Column::id("user_id").default("uuid"))
+            .column(Column::text("first_name"))
+            .column(Column::text("last_name"))
+            .with_time_stamps()
     }
 }

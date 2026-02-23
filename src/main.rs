@@ -1,11 +1,10 @@
-use cli_tooling::file_manager::write_migration;
-use cli_tooling::tables::user;
+use cli_tooling::tables::{schema, user};
 use dialoguer::{Confirm, theme::ColorfulTheme};
 use std::error::Error;
 fn main() {
-    let migration = user::create_user_table().create_table();
-    write_migration(&migration, " file_name ").unwrap();
-    // let _ = init();
+    schema::build()
+        .migrate("users")
+        .unwrap_or_else(|_| println!("Could not run migrations"))
 }
 
 // fn init() -> Result<Option<bool>, Box<dyn Error>> {

@@ -1,45 +1,9 @@
+use crate::sql::{DataType, Format};
 use std::fmt::Write;
-
-pub trait Format {
-    fn as_str(&self) -> String;
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Schema {
-    pub tables: Vec<Table>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Table {
-    pub name: String,
-    pub columns: Vec<Column>,
-}
-
-impl Table {
-    pub fn create_table(&self) -> String {
-        let mut output = String::from("CREATE TABLE ");
-        let len = self.columns.len();
-
-        write!(output, "\"{}\" \n(", self.name).unwrap();
-
-        for (i, col) in self.columns.iter().enumerate() {
-            write!(
-                output,
-                "\n {}{}",
-                col.as_str(),
-                if len - 1 == i { "" } else { "," }
-            )
-            .unwrap();
-        }
-
-        write!(output, "\n);").unwrap();
-        output
-    }
-}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Column {
-    name: String,
+    pub name: String,
     data_type: DataType,
     is_unique: bool,
     is_nullable: bool,
@@ -80,6 +44,18 @@ impl Column {
     }
 }
 
+impl Column {
+    pub fn id(name: &str) -> Self {
+        Self::new(name, DataType::Uuid).unique().primary()
+    }
+    pub fn text(name: &str) -> Self {
+        Self::new(name, DataType::Text)
+    }
+    pub fn time_stamp(name: &str) -> Self {
+        Self::new(name, DataType::Timestamp).default("now()")
+    }
+}
+
 impl Format for Column {
     fn as_str(&self) -> String {
         let mut output = String::new();
@@ -101,24 +77,18 @@ impl Format for Column {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DataType {
-    Text,
-    Boolean,
-    Date,
-    Int,
-    Int4,
-    Char,
-    Varchar,
-    Time,
-    Timestamp,
-    Timestampz,
-    Enum,
-    Uuid,
+#[test]
+fn should_equal() {
+    assert_eq!(
+        Column::new("test", DataType::Text),
+        Column::new("test", DataType::Text)
+    );
 }
 
-impl Format for DataType {
-    fn as_str(&self) -> String {
-        format!("{:?}", self).to_lowercase()
-    }
+#[test]
+fn should_not_equal() {
+    assert_ne!(
+        Column::new("test", DataType::Text).default(""),
+        Column::new("test", DataType::Text)
+    );
 }
