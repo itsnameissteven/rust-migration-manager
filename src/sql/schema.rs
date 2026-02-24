@@ -1,5 +1,5 @@
 use crate::error::SchemaError;
-use crate::sql::Table;
+use crate::sql::{DbEnum, Table};
 use chrono::Utc;
 use std::fmt::Write;
 use std::fs;
@@ -7,13 +7,14 @@ use std::io::ErrorKind;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Config {
-    migration_path: String,
+    migration_path: &'static str,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Schema {
     pub tables: Vec<Table>,
     pub config: Config,
+    pub enums: Vec<DbEnum>,
 }
 
 impl Schema {
@@ -21,18 +22,24 @@ impl Schema {
         Self {
             tables: Vec::new(),
             config: Config {
-                migration_path: String::from("migrations"),
+                migration_path: "migrations",
             },
+            enums: Vec::new(),
         }
     }
-    pub fn tables(mut self, tables: Vec<Table>) -> Self {
-        self.tables = tables;
+    pub fn table(mut self, table: Table) -> Self {
+        self.tables.push(table);
         self
     }
     pub fn config(mut self, config: Config) -> Self {
         self.config = config;
         self
     }
+    pub fn db_enum(mut self, db_enum: DbEnum) -> Self {
+        self.enums.push(db_enum);
+        self
+    }
+
     pub fn migrate(&self, file_name: &str) -> Result<(), SchemaError> {
         let time_stamp = Utc::now().timestamp().to_string();
         let file_path = format!(
@@ -68,10 +75,6 @@ impl Schema {
         for table in &self.tables {
             let val = table.parse()?;
             write!(output, "\n\n{}", val).unwrap();
-            //     return Err(t);
-            // } else if let Ok(val) = res {
-            //     write!(output, "\n\n{}", val).unwrap();
-            // }
         }
         Ok(output)
     }

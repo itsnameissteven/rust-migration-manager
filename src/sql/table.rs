@@ -5,14 +5,14 @@ use std::fmt::Write;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Table {
-    pub name: String,
+    pub name: &'static str,
     pub columns: Vec<Column>,
 }
 
 impl Table {
-    pub fn new(name: impl Into<String>) -> Self {
+    pub fn new(name: &'static str) -> Self {
         Self {
-            name: name.into(),
+            name: name,
             columns: Vec::new(),
         }
     }
@@ -66,7 +66,7 @@ mod tests {
     #[test]
     fn should_equal() {
         let table1 = Table {
-            name: String::from("user"),
+            name: "user",
             columns: vec![
                 Column::new("user_id", DataType::Uuid)
                     .unique()
@@ -79,7 +79,7 @@ mod tests {
             ],
         };
         let table2 = Table {
-            name: String::from("user"),
+            name: "user",
             columns: vec![
                 Column::new("user_id", DataType::Uuid)
                     .unique()
@@ -94,11 +94,3 @@ mod tests {
         assert!(table1 == table2);
     }
 }
-
-// #[test]
-// fn should_not_equal() {
-//     assert_ne!(
-//         Column::new("test", DataType::Text).default(""),
-//         Column::new("test", DataType::Text)
-//     );
-// }

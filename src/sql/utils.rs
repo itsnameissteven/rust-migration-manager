@@ -1,4 +1,4 @@
-use crate::sql::Table;
+use crate::sql::{DbEnum, Table};
 
 pub trait Format {
     fn as_str(&self) -> String;
@@ -28,6 +28,10 @@ impl Format for DataType {
 
 pub trait BuildTable {
     fn table() -> Table;
+}
+
+pub trait BuildEnum {
+    fn db_enum() -> DbEnum;
 }
 
 #[test]

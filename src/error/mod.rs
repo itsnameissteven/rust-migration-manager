@@ -5,7 +5,8 @@ use std::io;
 #[derive(Debug)]
 pub enum SchemaError {
     ColumnError(String),
-    TableError,
+    TableError(String),
+    EnumError(String),
     Io(std::io::Error),
 }
 
@@ -13,7 +14,8 @@ impl fmt::Display for SchemaError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             SchemaError::ColumnError(msg) => write!(f, "Duplicate column value: {}", msg),
-            SchemaError::TableError => write!(f, "TBD"),
+            SchemaError::TableError(msg) => write!(f, "Duplicate table name value: {}", msg),
+            SchemaError::EnumError(msg) => write!(f, "Duplicate enum value: {}", msg),
             SchemaError::Io(e) => write!(f, "{e}"),
         }
     }
