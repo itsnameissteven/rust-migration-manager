@@ -89,16 +89,14 @@ impl Schema {
         let mut enum_names: HashSet<&String> = HashSet::new();
         let mut table_names: HashSet<&String> = HashSet::new();
         for e in &self.enums {
-            if enum_names.contains(&e.name) {
+            if !enum_names.insert(&e.name) {
                 return Err(SchemaError::EnumError(e.name.to_string()));
             };
-            enum_names.insert(&e.name);
         }
         for t in &self.tables {
-            if table_names.contains(&t.name) {
+            if !table_names.insert(&t.name) {
                 return Err(SchemaError::TableError(t.name.to_string()));
             };
-            table_names.insert(&t.name);
         }
         Ok(())
     }

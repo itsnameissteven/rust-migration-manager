@@ -47,10 +47,9 @@ impl Table {
     fn validate_col_names(&self) -> Result<(), SchemaError> {
         let mut column_names: HashSet<&String> = HashSet::new();
         for col in &self.columns {
-            if column_names.contains(&col.name) {
+            if !column_names.insert(&col.name) {
                 return Err(SchemaError::ColumnError(col.name.to_string()));
             };
-            column_names.insert(&col.name);
         }
         Ok(())
     }
