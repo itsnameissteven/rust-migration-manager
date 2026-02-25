@@ -5,14 +5,14 @@ use std::fmt::Write;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Table {
-    pub name: &'static str,
+    pub name: String,
     pub columns: Vec<Column>,
 }
 
 impl Table {
-    pub fn new(name: &'static str) -> Self {
+    pub fn new(name: impl Into<String>) -> Self {
         Self {
-            name: name,
+            name: name.into(),
             columns: Vec::new(),
         }
     }
@@ -29,21 +29,18 @@ impl Table {
             return Err(e);
         }
         let mut output = String::from("CREATE TABLE ");
-        let len = self.columns.len();
 
         write!(output, "\"{}\" \n(", self.name).unwrap();
 
-        for (i, col) in self.columns.iter().enumerate() {
-            write!(
-                output,
-                "\n {}{}",
-                col.as_str(),
-                if len - 1 == i { "" } else { "," }
-            )
-            .unwrap();
-        }
+        let cols = self
+            .columns
+            .iter()
+            .map(|c| format!("\n {}", c.as_str()))
+            .collect::<Vec<_>>()
+            .join(", ");
 
-        write!(output, "\n);").unwrap();
+        write!(output, "{}\n);", cols).unwrap();
+
         Ok(output)
     }
 
@@ -66,7 +63,7 @@ mod tests {
     #[test]
     fn should_equal() {
         let table1 = Table {
-            name: "user",
+            name: "user".into(),
             columns: vec![
                 Column::new("user_id", DataType::Uuid)
                     .unique()
@@ -79,7 +76,7 @@ mod tests {
             ],
         };
         let table2 = Table {
-            name: "user",
+            name: "user".into(),
             columns: vec![
                 Column::new("user_id", DataType::Uuid)
                     .unique()

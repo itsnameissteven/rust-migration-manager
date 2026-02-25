@@ -1,6 +1,6 @@
-use cli_tooling::tables::{schema, user};
-use dialoguer::{Confirm, theme::ColorfulTheme};
-use std::error::Error;
+use cli_tooling::tables::schema;
+// use dialoguer::{Confirm, theme::ColorfulTheme};
+// use std::error::Error;
 fn main() {
     schema::build()
         .migrate("users")
