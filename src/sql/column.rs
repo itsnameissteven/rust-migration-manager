@@ -45,13 +45,13 @@ impl Column {
 }
 
 impl Column {
-    pub fn id(name: &str) -> Self {
+    pub fn id(name: impl Into<String>) -> Self {
         Self::new(name, DataType::Uuid).unique().primary()
     }
-    pub fn text(name: &str) -> Self {
+    pub fn text(name: impl Into<String>) -> Self {
         Self::new(name, DataType::Text)
     }
-    pub fn time_stamp(name: &str) -> Self {
+    pub fn time_stamp(name: impl Into<String>) -> Self {
         Self::new(name, DataType::Timestamp).default("now()")
     }
 }
