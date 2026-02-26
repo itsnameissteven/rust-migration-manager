@@ -1,7 +1,9 @@
+use crate::database::{DbEnum, Table};
 use crate::error::SchemaError;
-use crate::sql::{DbEnum, Table};
+use anyhow::Context;
 use chrono::Utc;
 use clap::Parser;
+use sqlx::postgres::PgPoolOptions;
 use std::collections::HashSet;
 use std::fmt::Write;
 use std::fs;
@@ -9,6 +11,7 @@ use std::io::ErrorKind;
 
 #[derive(Debug, Clone, PartialEq, Eq, Parser)]
 pub struct Config {
+    #[clap(long, env)]
     pub migration_path: String,
     #[clap(long, env)]
     pub database_url: String,
@@ -17,18 +20,16 @@ pub struct Config {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Schema {
     pub tables: Vec<Table>,
-    pub config: Config,
+    pub migration_path: String,
     pub enums: Vec<DbEnum>,
 }
 
 impl Schema {
     pub fn new() -> Self {
+        let config = Config::parse();
         Self {
             tables: Vec::new(),
-            config: Config {
-                migration_path: "migrations".into(),
-                database_url: "".into(),
-            },
+            migration_path: config.migration_path,
             enums: Vec::new(),
         }
     }
@@ -36,25 +37,44 @@ impl Schema {
         self.tables.push(table);
         self
     }
-    pub fn config(mut self, config: Config) -> Self {
-        self.config = config;
-        self
-    }
     pub fn db_enum(mut self, db_enum: DbEnum) -> Self {
         self.enums.push(db_enum);
         self
     }
+    // pub async fn connect(&self) {
+    //     let config = Config::parse();
+    //     let db = PgPoolOptions::new()
+    //         .max_connections(50)
+    //         .connect(&config.database_url)
+    //         .await
+    //         .context("Could not connect to database_url")
+    //         .unwrap();
+    //     let d = sqlx::query!(
+    //         r#"
+    //         SELECT
+    //             *
+    //             FROM information_schema.columns
+    //             WHERE table_schema = 'public'
+    //         ORDER BY table_name, ordinal_position;
+    //         "#
+    //     )
+    //     .fetch_all(&db)
+    //     .await;
+    //     if d.is_ok() {
+    //         println!("{:#?}", d);
+    //     }
+    // }
 
     pub fn migrate(&self, file_name: &str) -> Result<(), SchemaError> {
         let time_stamp = Utc::now().timestamp().to_string();
         let file_path = format!(
             "{}/{}_{}.sql",
-            self.config.migration_path,
+            self.migration_path,
             time_stamp,
             file_name.trim()
         );
 
-        match fs::create_dir(&self.config.migration_path) {
+        match fs::create_dir(&self.migration_path) {
             Ok(_) => {
                 println!("Migration directory created");
                 Ok(())
@@ -108,8 +128,8 @@ impl Schema {
 
 #[cfg(test)]
 mod tests {
-    use crate::sql::utils::BuildEnum;
-    use crate::sql::{BuildTable, Schema};
+    use crate::database::utils::BuildEnum;
+    use crate::database::{BuildTable, Schema};
     use crate::tables::{Status, User};
 
     #[test]
@@ -130,3 +150,14 @@ mod tests {
         assert!(schema2.parse().is_err());
     }
 }
+
+// SELECT
+//   table_name,
+//   column_name,
+//   data_type,
+//   is_nullable,
+//   column_default,
+//   ordinal_position
+// FROM information_schema.columns
+// WHERE table_schema = 'public'
+// ORDER BY table_name, ordinal_position;

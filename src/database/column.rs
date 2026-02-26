@@ -1,4 +1,4 @@
-use crate::sql::{DataType, Format};
+use crate::database::{DataType, Format};
 use std::fmt::Write;
 
 #[derive(Debug, Clone, PartialEq, Eq)]

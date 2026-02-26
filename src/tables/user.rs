@@ -1,4 +1,4 @@
-use crate::sql::{BuildTable, Column, Table};
+use crate::database::{BuildTable, Column, Table};
 
 pub struct User;
 

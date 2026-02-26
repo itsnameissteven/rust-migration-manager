@@ -1,4 +1,4 @@
-use crate::sql::{DbEnum, utils::BuildEnum};
+use crate::database::{DbEnum, utils::BuildEnum};
 
 pub struct Status;
 

@@ -1,5 +1,5 @@
-use crate::sql::utils::BuildEnum;
-use crate::sql::{BuildTable, Schema};
+use crate::database::utils::BuildEnum;
+use crate::database::{BuildTable, Schema};
 use crate::tables::{Status, User};
 
 pub fn build() -> Schema {

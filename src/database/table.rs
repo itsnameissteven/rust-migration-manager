@@ -1,5 +1,5 @@
+use crate::database::{Column, Format};
 use crate::error::SchemaError;
-use crate::sql::{Column, Format};
 use std::collections::HashSet;
 use std::fmt::Write;
 
@@ -57,7 +57,7 @@ impl Table {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::sql::utils::DataType;
+    use crate::database::utils::DataType;
 
     #[test]
     fn should_equal() {
