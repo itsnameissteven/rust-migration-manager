@@ -1,14 +1,17 @@
 use crate::error::SchemaError;
 use crate::sql::{DbEnum, Table};
 use chrono::Utc;
+use clap::Parser;
 use std::collections::HashSet;
 use std::fmt::Write;
 use std::fs;
 use std::io::ErrorKind;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Parser)]
 pub struct Config {
-    migration_path: &'static str,
+    pub migration_path: String,
+    #[clap(long, env)]
+    pub database_url: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -23,7 +26,8 @@ impl Schema {
         Self {
             tables: Vec::new(),
             config: Config {
-                migration_path: "migrations",
+                migration_path: "migrations".into(),
+                database_url: "".into(),
             },
             enums: Vec::new(),
         }
