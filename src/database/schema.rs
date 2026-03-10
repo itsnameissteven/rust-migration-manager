@@ -1,9 +1,10 @@
-use crate::database::{DbEnum, Table};
+use crate::database::{DbEnum, Extension, Table};
 use crate::error::SchemaError;
+use crate::postgres_schema::{self, PostgresSchema};
 use anyhow::Context;
 use chrono::Utc;
 use clap::Parser;
-use sqlx::postgres::PgPoolOptions;
+use sqlx::migrate::MigrateError;
 use std::collections::HashSet;
 use std::fmt::Write;
 use std::fs;
@@ -21,7 +22,9 @@ pub struct Config {
 pub struct Schema {
     pub tables: Vec<Table>,
     pub migration_path: String,
+    database_url: String,
     pub enums: Vec<DbEnum>,
+    pub extensions: Vec<Extension>,
 }
 
 impl Schema {
@@ -30,7 +33,9 @@ impl Schema {
         Self {
             tables: Vec::new(),
             migration_path: config.migration_path,
+            database_url: config.database_url,
             enums: Vec::new(),
+            extensions: Vec::new(),
         }
     }
     pub fn table(mut self, table: Table) -> Self {
@@ -41,31 +46,12 @@ impl Schema {
         self.enums.push(db_enum);
         self
     }
-    // pub async fn connect(&self) {
-    //     let config = Config::parse();
-    //     let db = PgPoolOptions::new()
-    //         .max_connections(50)
-    //         .connect(&config.database_url)
-    //         .await
-    //         .context("Could not connect to database_url")
-    //         .unwrap();
-    //     let d = sqlx::query!(
-    //         r#"
-    //         SELECT
-    //             *
-    //             FROM information_schema.columns
-    //             WHERE table_schema = 'public'
-    //         ORDER BY table_name, ordinal_position;
-    //         "#
-    //     )
-    //     .fetch_all(&db)
-    //     .await;
-    //     if d.is_ok() {
-    //         println!("{:#?}", d);
-    //     }
-    // }
+    pub fn extension(mut self, extension: Extension) -> Self {
+        self.extensions.push(extension);
+        self
+    }
 
-    pub fn migrate(&self, file_name: &str) -> Result<(), SchemaError> {
+    pub fn write(&self, file_name: &str) -> Result<(), SchemaError> {
         let time_stamp = Utc::now().timestamp().to_string();
         let file_path = format!(
             "{}/{}_{}.sql",
@@ -94,9 +80,31 @@ impl Schema {
         }
     }
 
+    pub async fn migrate(&self, file_name: &str) -> Result<(), sqlx::migrate::MigrateError> {
+        let res = self.write(file_name);
+        match res {
+            Ok(_) => {
+                println!("Ok");
+                postgres_schema::PostgresSchema::connect(&self.database_url)
+                    .await?
+                    .migrate(&self.migration_path)
+                    .await
+            }
+            Err(_) => {
+                println!("");
+                Err(MigrateError::ForceNotSupported)
+            }
+        }
+    }
+
     fn parse(&self) -> Result<String, SchemaError> {
         self.validate_values()?;
         let mut output = String::from("-- Migration --\n");
+
+        for extension in &self.extensions {
+            let val = extension.parse()?;
+            write!(output, "\n{}", val).unwrap();
+        }
 
         for db_enum in &self.enums {
             let val = db_enum.parse()?;

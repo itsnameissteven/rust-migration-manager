@@ -1,13 +1,16 @@
-use anyhow::{Context, Ok};
+// use anyhow::Ok;
 use cli_tooling::tables::schema;
+// use std::result::Result::Ok;
 // use dialoguer::{Confirm, theme::ColorfulTheme};
 // use std::error::Error;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // let sch = schema::build()
-    //     .migrate("users")
-    //     .unwrap_or_else(|_| println!("Could not run migrations"));
-    schema::build();
+    dotenv::dotenv().ok();
+    let migration = schema::build().migrate("migrations").await;
+    match migration {
+        Ok(_) => println!("All good"),
+        Err(e) => println!("Error: {:?}", e),
+    };
     Ok(())
 }
 
