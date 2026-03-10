@@ -219,6 +219,7 @@ dependencies = [
  "dialoguer",
  "dotenv",
  "sqlx",
+ "thiserror",
  "tokio",
 ]
 

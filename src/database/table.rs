@@ -16,21 +16,24 @@ impl Table {
             columns: Vec::new(),
         }
     }
+
     pub fn column(mut self, column: Column) -> Self {
         self.columns.push(column);
         self
     }
+
     pub fn with_time_stamps(self) -> Self {
         self.column(Column::time_stamp("created_at"))
             .column(Column::time_stamp("updated_at"))
     }
+
     pub fn parse(&self) -> Result<String, SchemaError> {
         if let Err(e) = self.validate_col_names() {
             return Err(e);
         }
         let mut output = String::from("CREATE TABLE ");
 
-        write!(output, "\"{}\" \n(", self.name).unwrap();
+        write!(output, "\"{}\" \n(", self.name)?;
 
         let cols = self
             .columns
@@ -39,7 +42,7 @@ impl Table {
             .collect::<Vec<_>>()
             .join(", ");
 
-        write!(output, "{}\n);", cols).unwrap();
+        write!(output, "{}\n);", cols)?;
 
         Ok(output)
     }
@@ -54,6 +57,7 @@ impl Table {
         Ok(())
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
