@@ -1,5 +1,7 @@
-use crate::database::{Column, Format};
+use crate::database::Column;
+use crate::database::utils::Parse;
 use crate::error::SchemaError;
+use crate::prelude::*;
 use std::collections::HashSet;
 use std::fmt::Write;
 
@@ -27,7 +29,19 @@ impl Table {
             .column(Column::time_stamp("updated_at"))
     }
 
-    pub fn parse(&self) -> Result<String, SchemaError> {
+    fn validate_col_names(&self) -> Result<(), SchemaError> {
+        let mut column_names: HashSet<&String> = HashSet::new();
+        for col in &self.columns {
+            if !column_names.insert(&col.name) {
+                return Err(SchemaError::ColumnError(col.name.to_string()));
+            };
+        }
+        Ok(())
+    }
+}
+
+impl Parse for Table {
+    fn parse(&self) -> Result<String, SchemaError> {
         if let Err(e) = self.validate_col_names() {
             return Err(e);
         }
@@ -45,16 +59,6 @@ impl Table {
         write!(output, "{}\n);", cols)?;
 
         Ok(output)
-    }
-
-    fn validate_col_names(&self) -> Result<(), SchemaError> {
-        let mut column_names: HashSet<&String> = HashSet::new();
-        for col in &self.columns {
-            if !column_names.insert(&col.name) {
-                return Err(SchemaError::ColumnError(col.name.to_string()));
-            };
-        }
-        Ok(())
     }
 }
 

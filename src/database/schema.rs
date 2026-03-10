@@ -1,4 +1,4 @@
-use crate::database::{DbEnum, Extension, Table};
+use crate::database::{DbEnum, Extension, Parse, Table};
 use crate::error::SchemaError;
 use crate::postgres_schema::{self, PostgresSchema};
 use anyhow::Context;

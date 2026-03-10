@@ -10,4 +10,4 @@ pub use db_enum::DbEnum;
 pub use extension::Extension;
 pub use schema::{Config, Schema};
 pub use table::Table;
-pub use utils::{BuildTable, DataType, Format};
+pub use utils::{BuildEnum, BuildTable, DataType, Format, Parse};
