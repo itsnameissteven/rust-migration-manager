@@ -24,7 +24,7 @@ impl DbEnum {
                 self.name
             )));
         }
-        write!(output, "'{}' AS ENUM (", self.name).unwrap();
+        write!(output, "{} AS ENUM(", self.name).unwrap();
 
         let values: String = self
             .values

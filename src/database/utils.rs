@@ -1,4 +1,4 @@
-use crate::sql::{DbEnum, Table};
+use crate::database::{DbEnum, Table};
 
 pub trait Format {
     fn as_str(&self) -> String;
