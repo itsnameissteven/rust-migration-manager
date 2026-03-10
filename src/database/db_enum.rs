@@ -1,3 +1,4 @@
+use crate::prelude::*;
 use std::fmt::Write;
 
 use crate::error::SchemaError;
@@ -15,7 +16,10 @@ impl DbEnum {
             values: values.into_iter().map(Into::into).collect(),
         }
     }
-    pub fn parse(&self) -> Result<String, SchemaError> {
+}
+
+impl Parse for DbEnum {
+    fn parse(&self) -> Result<String, SchemaError> {
         let mut output = String::from("CREATE TYPE ");
 
         if self.values.len() == 0 {
@@ -24,7 +28,7 @@ impl DbEnum {
                 self.name
             )));
         }
-        write!(output, "{} AS ENUM(", self.name).unwrap();
+        write!(output, "{} AS ENUM(", self.name)?;
 
         let values: String = self
             .values
@@ -33,7 +37,7 @@ impl DbEnum {
             .collect::<Vec<_>>()
             .join(", ");
 
-        write!(output, "{});\n", values).unwrap();
+        write!(output, "{});\n", values)?;
 
         Ok(output)
     }

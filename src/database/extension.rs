@@ -1,6 +1,6 @@
+use crate::error::SchemaError;
+use crate::prelude::*;
 use std::fmt::Write;
-
-use crate::{error::SchemaError, prelude::Parse};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Extension {
