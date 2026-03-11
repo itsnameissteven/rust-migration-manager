@@ -6,7 +6,7 @@ use cli_tooling::tables::schema;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
-    let migration = schema::build().migrate("migrations").await;
+    let migration = schema::build().write("migrations");
     match migration {
         Ok(_) => println!("All good"),
         Err(e) => println!("Error: {:?}", e),

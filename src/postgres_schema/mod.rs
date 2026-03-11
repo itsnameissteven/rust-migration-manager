@@ -9,6 +9,11 @@ use sqlx::{Pool, Postgres};
 struct ColumnInfo {
     table_name: Option<String>,
 }
+#[derive(Debug, sqlx::FromRow)]
+
+struct TableInfo {
+    table_name: Option<String>,
+}
 
 impl PostgresSchema {
     pub async fn connect(database_url: &str) -> Result<Self, SqlError> {
@@ -24,7 +29,7 @@ impl PostgresSchema {
                 SELECT
                     table_name
                     FROM information_schema.columns
-                    WHERE table_schema = 'public'
+                    WHERE table_schema = 'public' AND table_name  != '_sqlx_migrations'
                 ORDER BY table_name, ordinal_position;
                 "#,
         )
