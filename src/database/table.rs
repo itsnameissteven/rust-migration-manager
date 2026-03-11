@@ -1,5 +1,4 @@
 use crate::database::Column;
-use crate::database::utils::Parse;
 use crate::error::SchemaError;
 use crate::prelude::*;
 use std::collections::HashSet;
@@ -47,14 +46,14 @@ impl Parse for Table {
         }
         let mut output = String::from("CREATE TABLE ");
 
-        write!(output, "\"{}\" \n(", self.name)?;
+        write!(output, "\"{}\" \n(\n\t", self.name)?;
 
         let cols = self
             .columns
             .iter()
-            .map(|c| format!("\n {}", c.as_str()))
-            .collect::<Vec<_>>()
-            .join(", ");
+            .map(|c| c.parse())
+            .collect::<Result<Vec<_>, _>>()?
+            .join(", \n\t");
 
         write!(output, "{}\n);", cols)?;
 

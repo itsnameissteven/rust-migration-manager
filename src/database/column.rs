@@ -1,4 +1,5 @@
 use crate::database::{DataType, Format};
+use crate::prelude::*;
 use std::fmt::Write;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -56,24 +57,24 @@ impl Column {
     }
 }
 
-impl Format for Column {
-    fn as_str(&self) -> String {
+impl Parse for Column {
+    fn parse(&self) -> Result<String, SchemaError> {
         let mut output = String::new();
-        write!(output, "{} {}", self.name, self.data_type.as_str()).unwrap();
+        write!(output, "{} {}", self.name, self.data_type.as_str())?;
 
         if self.is_primary {
-            write!(output, "  PRIMARY KEY").unwrap();
+            write!(output, "  PRIMARY KEY")?;
         }
         if self.is_unique {
-            write!(output, "  UNIQUE").unwrap();
+            write!(output, "  UNIQUE")?;
         }
         if !self.is_nullable {
-            write!(output, "  NOT NULL").unwrap();
+            write!(output, "  NOT NULL")?;
         }
         if let Some(ref default) = self.default {
-            write!(output, " DEFAULT {}", default).unwrap();
+            write!(output, " DEFAULT {}", default)?;
         }
-        output
+        Ok(output)
     }
 }
 
