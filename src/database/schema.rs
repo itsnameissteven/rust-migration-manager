@@ -1,7 +1,6 @@
-use crate::database::{DbEnum, Extension, Table};
+use crate::database::{DbEnum, Extension, Parse, Table};
 use crate::error::SchemaError;
-use crate::postgres_schema::{self, PostgresSchema};
-use anyhow::Context;
+use crate::postgres_schema::PostgresSchema;
 use chrono::Utc;
 use clap::Parser;
 use sqlx::migrate::MigrateError;
@@ -50,6 +49,13 @@ impl Schema {
         self.extensions.push(extension);
         self
     }
+    pub async fn check(&self) -> Result<(), sqlx::migrate::MigrateError> {
+        PostgresSchema::connect(&self.database_url)
+            .await?
+            .get_tables()
+            .await;
+        Ok(())
+    }
 
     pub fn write(&self, file_name: &str) -> Result<(), SchemaError> {
         let time_stamp = Utc::now().timestamp().to_string();
@@ -85,7 +91,7 @@ impl Schema {
         match res {
             Ok(_) => {
                 println!("Ok");
-                postgres_schema::PostgresSchema::connect(&self.database_url)
+                PostgresSchema::connect(&self.database_url)
                     .await?
                     .migrate(&self.migration_path)
                     .await

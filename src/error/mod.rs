@@ -1,27 +1,24 @@
-use std::error::Error;
 use std::fmt;
 use std::io;
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum SchemaError {
+    #[error("Duplicate column value: {0}")]
     ColumnError(String),
+
+    #[error("Duplicate table name value: {0}")]
     TableError(String),
+
+    #[error("Duplicate enum value: {0}")]
     EnumError(String),
-    Io(std::io::Error),
-}
 
-impl fmt::Display for SchemaError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            SchemaError::ColumnError(msg) => write!(f, "Duplicate column value: {}", msg),
-            SchemaError::TableError(msg) => write!(f, "Duplicate table name value: {}", msg),
-            SchemaError::EnumError(msg) => write!(f, "Duplicate enum value: {}", msg),
-            SchemaError::Io(e) => write!(f, "{e}"),
-        }
-    }
-}
+    #[error("IO error: {0}")]
+    Io(#[from] io::Error),
 
-impl Error for SchemaError {}
+    #[error("There was an issue formatting: {0}")]
+    FormatError(#[from] fmt::Error),
+}
 
 impl From<SchemaError> for io::Error {
     fn from(err: SchemaError) -> Self {

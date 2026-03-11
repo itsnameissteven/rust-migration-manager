@@ -1,5 +1,6 @@
-use crate::database::{Column, Format};
+use crate::database::Column;
 use crate::error::SchemaError;
+use crate::prelude::*;
 use std::collections::HashSet;
 use std::fmt::Write;
 
@@ -16,32 +17,15 @@ impl Table {
             columns: Vec::new(),
         }
     }
+
     pub fn column(mut self, column: Column) -> Self {
         self.columns.push(column);
         self
     }
+
     pub fn with_time_stamps(self) -> Self {
         self.column(Column::time_stamp("created_at"))
             .column(Column::time_stamp("updated_at"))
-    }
-    pub fn parse(&self) -> Result<String, SchemaError> {
-        if let Err(e) = self.validate_col_names() {
-            return Err(e);
-        }
-        let mut output = String::from("CREATE TABLE ");
-
-        write!(output, "\"{}\" \n(", self.name).unwrap();
-
-        let cols = self
-            .columns
-            .iter()
-            .map(|c| format!("\n {}", c.as_str()))
-            .collect::<Vec<_>>()
-            .join(", ");
-
-        write!(output, "{}\n);", cols).unwrap();
-
-        Ok(output)
     }
 
     fn validate_col_names(&self) -> Result<(), SchemaError> {
@@ -54,6 +38,29 @@ impl Table {
         Ok(())
     }
 }
+
+impl Parse for Table {
+    fn parse(&self) -> Result<String, SchemaError> {
+        if let Err(e) = self.validate_col_names() {
+            return Err(e);
+        }
+        let mut output = String::from("CREATE TABLE ");
+
+        write!(output, "\"{}\" \n(\n\t", self.name)?;
+
+        let cols = self
+            .columns
+            .iter()
+            .map(|c| c.parse())
+            .collect::<Result<Vec<_>, _>>()?
+            .join(", \n\t");
+
+        write!(output, "{}\n);", cols)?;
+
+        Ok(output)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

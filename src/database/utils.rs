@@ -1,7 +1,14 @@
-use crate::database::{DbEnum, Table};
+use crate::{
+    database::{DbEnum, Table},
+    error::SchemaError,
+};
 
 pub trait Format {
     fn as_str(&self) -> String;
+}
+
+pub trait Parse {
+    fn parse(&self) -> Result<String, SchemaError>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
